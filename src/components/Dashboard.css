@@ -1,7 +1,7 @@
 
 .dashboard-bg {
   min-height: 100vh;
-  background: url("C:\Users\5520\Desktop\Desktop\Multi_talk\public\dashboard-back.jpg") no-repeat center center fixed;
+  background: url("dashboard-back.jpg") no-repeat center center fixed;
   background-size: cover;
   position: relative;
   color: #fff;
