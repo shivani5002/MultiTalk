@@ -5,18 +5,65 @@
   padding: 1rem 2rem;
   background: rgba(17, 43, 56, 0.84);
   box-shadow: 0 8px 40px 0 rgba(0,255,255,0.15);
+  position: relative;
+  z-index: 1000;
 }
 
 .dashboard-logo { 
   font-size: 2.2rem;
-  font-weight: 900; /* Make it bolder */
+  font-weight: 900;
   letter-spacing: 0.10em;
-  color: #7dfaff; /* Strong cyan */
+  color: #7dfaff;
   text-shadow: 0 0 22px #65faff, 0 0 4px #45caff, 0 2px 2px #16212a;
-  padding-left: 1.8rem;  /* Use reasonable left padding, never 6rem */
+  padding-left: 1.8rem;
   padding-top: 0.4rem;
+  z-index: 1001;
 }
 
+/* Hamburger Button - Hidden on desktop */
+.hamburger-btn {
+  display: none;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 32px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1001;
+  position: relative;
+}
+
+.hamburger-line {
+  width: 100%;
+  height: 3px;
+  background: #41f9ff;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 8px #41f9ff;
+}
+
+/* Hamburger animation when active */
+.hamburger-btn.active .hamburger-line:nth-child(1) {
+  transform: rotate(45deg) translate(8px, 8px);
+}
+
+.hamburger-btn.active .hamburger-line:nth-child(2) {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.hamburger-btn.active .hamburger-line:nth-child(3) {
+  transform: rotate(-45deg) translate(8px, -8px);
+}
+
+/* Desktop Navigation */
+.dashboard-navbar nav {
+  display: flex;
+  align-items: center;
+  gap: 1.3rem;
+}
 
 .dashboard-navbar nav a {
   color: #41f9ff;
@@ -24,72 +71,117 @@
   font-size: 1.15rem;
   font-weight: 700;
   text-decoration: none;
-  margin-right: 1.3rem;
   transition: color 0.22s, text-shadow 0.25s;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
 }
 
 .dashboard-navbar nav a:hover {
   color: #fff;
   text-shadow: 0 0 12px #47faff;
+  background: rgba(65, 249, 255, 0.1);
 }
 
-
+/* ===== MOBILE STYLES ===== */
 @media (max-width: 768px) {
-    .dashboard-navbar {
-    flex-direction: column;
-    padding: 1rem;
-    text-align: center;
+  .dashboard-navbar {
+    padding: 1rem 1.5rem;
   }
 
   .dashboard-logo {
     padding-left: 0;
     padding-top: 0;
     font-size: 1.8rem;
-    margin-bottom: 1rem;
   }
 
-  .dashboard-navbar nav {
+  /* Show hamburger button on mobile */
+  .hamburger-btn {
     display: flex;
+  }
+
+  /* Hide navigation by default on mobile */
+  .dashboard-nav {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    height: 100vh;
+    width: 70%;
+    max-width: 300px;
+    background: rgba(17, 43, 56, 0.98);
+    backdrop-filter: blur(10px);
     flex-direction: column;
-    gap: 0.8rem;
-    width: 100%;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    transition: right 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: -5px 0 20px rgba(0, 255, 255, 0.2);
+    z-index: 999;
+  }
+
+  /* Show navigation when menu is open */
+  .dashboard-nav.menu-open {
+    right: 0;
   }
 
   .dashboard-navbar nav a {
-    margin-right: 0;
-    font-size: 1rem;
-    padding: 0.5rem 0;
+    font-size: 1.2rem;
+    padding: 1rem 2rem;
+    width: 80%;
+    text-align: center;
     border-bottom: 1px solid rgba(69, 255, 246, 0.2);
+    border-radius: 0;
   }
 
   .dashboard-navbar nav a:last-child {
     border-bottom: none;
   }
+
+  .dashboard-navbar nav a:hover {
+    background: rgba(65, 249, 255, 0.2);
+    transform: translateX(-5px);
+  }
+
+  /* Overlay when menu is open */
+  .dashboard-nav.menu-open::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: -1;
+  }
 }
 
+/* Tablet styles */
 @media (min-width: 769px) and (max-width: 1024px) {
-    .dashboard-navbar {
+  .dashboard-navbar {
     padding: 1rem 1.5rem;
   }
 
   .dashboard-logo {
-    padding-left: 2rem;
+    padding-left: 1rem;
     font-size: 2rem;
   }
 
   .dashboard-navbar nav a {
     font-size: 1.1rem;
-    margin-right: 1rem;
+    padding: 0.5rem 0.8rem;
   }
 }
 
+/* Very small mobile screens */
 @media (max-width: 480px) {
-    .dashboard-logo {
+  .dashboard-logo {
     font-size: 1.5rem;
   }
 
-  .dashboard-navbar nav a {
-    font-size: 0.9rem;
+  .dashboard-nav {
+    width: 80%;
   }
 
+  .dashboard-navbar nav a {
+    font-size: 1rem;
+  }
 }

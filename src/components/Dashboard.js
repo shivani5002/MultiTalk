@@ -15,7 +15,7 @@ const demoVideos = [
     image: "/images/pranav.jpg", // Path to reference image
     dialogue: "Welcome to multi-talk, this is an audio-driven video generation model for multiple person."
   },
-  {
+  { 
     id: 2,
     subtitle: "Two Speaker",
     snippet: "Briefly describe our new A4 strategy.",

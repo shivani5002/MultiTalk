@@ -12,7 +12,7 @@ body, #root, .landing-container {
 * {
   box-sizing: border-box;
 }
- 
+  
 .landing-container {
   min-height: 100vh;
   background: url("./background.png") no-repeat center center fixed;
@@ -20,55 +20,9 @@ body, #root, .landing-container {
   position: relative;
   background-color: #061232;
 }
-
+ 
 /* Navbar */
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 2rem;
-  background: rgba(17, 43, 56, 0.84);
-  box-shadow: 0 8px 40px 0 rgba(0,255,255,0.15);
-  position: relative;
-  width: 100%;
-  z-index: 20;
-  min-height: 5.7rem;
-  flex-wrap: wrap;
-  
-}
 
-.logo {
-  font-size: clamp(1.8rem, 5vw, 2.6rem);
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: #fff;
-  text-shadow: 0 0 18px #56faff, 0 0 2px #29feea;
-  margin-left: 1rem;
-}
-
-.navbar nav {
-  display: flex;
-  align-items: center;
-  gap: clamp(1rem, 2vw, 2.1rem);
-  margin-right: 1rem;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.navbar nav a {
-  color: #45fff6;
-  text-shadow: 0 0 6px #45fff6;
-  font-size: clamp(1rem, 2.5vw, 1.5rem);
-  font-weight: 550;
-  text-decoration: none;
-  letter-spacing: 0.03em;
-  transition: color 0.22s;
-  padding: 0.18rem 0.06rem;
-}
-
-.navbar nav a:hover {
-  color: #fff;
-}
 
 /* Main Content */
 .main-content {
@@ -483,20 +437,6 @@ body, #root, .landing-container {
 
 /* Responsive Breakpoints */
 @media (max-width: 768px) {
-  .navbar {
-    flex-direction: column;
-    padding: 1rem;
-    gap: 1rem;
-  }
-  
-  .logo {
-    margin-left: 0;
-  }
-  
-  .navbar nav {
-    margin-right: 0;
-    justify-content: center;
-  }
   
   .main-content {
     padding-top: 1rem;

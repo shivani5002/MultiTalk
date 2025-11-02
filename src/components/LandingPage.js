@@ -1,21 +1,14 @@
 import React from "react";
 import "./LandingPage.css";
 import { useNavigate } from "react-router-dom";
+import Navbar from "./Navbar";
 
 const LandingPage = () => {
   const navigate = useNavigate();
   
   return (
     <div className="landing-container">
-      <header className="navbar">
-        <div className="logo">MultiTalk</div>
-        <nav>
-          <a href="#about">About</a>
-          <a href="#contact">Contact</a>
-          <a href="#dashboard">Dashboard</a>
-          <a href="#logout">Logout</a>
-        </nav>
-      </header>
+      <Navbar />
       
       <main className="main-content">
         <div className="hero-box">
