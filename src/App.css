@@ -4,4 +4,10 @@ body, #root {
   min-height: 100vh;
   overflow-x: hidden;
   width: 100vw;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow: auto !important; /* Force it */
 }
