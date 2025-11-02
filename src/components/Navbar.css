@@ -1,0 +1,95 @@
+.dashboard-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: rgba(17, 43, 56, 0.84);
+  box-shadow: 0 8px 40px 0 rgba(0,255,255,0.15);
+}
+
+.dashboard-logo {
+  font-size: 2.2rem;
+  font-weight: 900; /* Make it bolder */
+  letter-spacing: 0.10em;
+  color: #7dfaff; /* Strong cyan */
+  text-shadow: 0 0 22px #65faff, 0 0 4px #45caff, 0 2px 2px #16212a;
+  padding-left: 1.8rem;  /* Use reasonable left padding, never 6rem */
+  padding-top: 0.4rem;
+}
+
+
+.dashboard-navbar nav a {
+  color: #41f9ff;
+  text-shadow: 0 0 8px #41f9ff, 0 0 1px #2cd6b8;
+  font-size: 1.15rem;
+  font-weight: 700;
+  text-decoration: none;
+  margin-right: 1.3rem;
+  transition: color 0.22s, text-shadow 0.25s;
+}
+
+.dashboard-navbar nav a:hover {
+  color: #fff;
+  text-shadow: 0 0 12px #47faff;
+}
+
+
+@media (max-width: 768px) {
+    .dashboard-navbar {
+    flex-direction: column;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .dashboard-logo {
+    padding-left: 0;
+    padding-top: 0;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+  }
+
+  .dashboard-navbar nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    width: 100%;
+  }
+
+  .dashboard-navbar nav a {
+    margin-right: 0;
+    font-size: 1rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(69, 255, 246, 0.2);
+  }
+
+  .dashboard-navbar nav a:last-child {
+    border-bottom: none;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .dashboard-navbar {
+    padding: 1rem 1.5rem;
+  }
+
+  .dashboard-logo {
+    padding-left: 2rem;
+    font-size: 2rem;
+  }
+
+  .dashboard-navbar nav a {
+    font-size: 1.1rem;
+    margin-right: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+    .dashboard-logo {
+    font-size: 1.5rem;
+  }
+
+  .dashboard-navbar nav a {
+    font-size: 0.9rem;
+  }
+
+}

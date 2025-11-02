@@ -1,0 +1,339 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap");
+
+/* === CSS Variables for Easy Maintenance === */
+:root {
+  --card-max-width: 420px;
+  --card-min-height: 470px;
+  --card-padding: 45px 35px;
+  --card-border-radius: 18px;
+  --card-background: rgba(255, 255, 255, 0.08);
+  --card-backdrop-filter: blur(18px);
+  --card-border: 1px solid rgba(255, 255, 255, 0.25);
+  --card-shadow: 0 0 35px rgba(0, 255, 255, 0.25);
+  --primary-color: #00eaff;
+  --text-color: #e0f7ff;
+  --placeholder-color: #d4f0ffb2;
+}
+
+/* === Base Styles === */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* === Background === */
+.avatar-login-page {
+  min-height: 100vh;
+  width: 100%;
+  background: url("C:\Users\5520\Desktop\Desktop\Multi_talk\public\background.png") no-repeat center center fixed;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Poppins", sans-serif;
+  position: relative;
+  overflow: auto;
+  padding: 20px;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    rgba(0, 0, 0, 0.4),
+    rgba(0, 0, 0, 0.7)
+  );
+  z-index: 1;
+}
+
+/* === Glass Card - Responsive === */
+.glass-card {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  max-width: var(--card-max-width);
+  min-height: var(--card-min-height);
+  perspective: 1000px;
+  margin: 0 auto;
+}
+
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 1s cubic-bezier(0.86, 0, 0.07, 1);
+  transform-style: preserve-3d;
+}
+
+.glass-card.flip .card-inner {
+  transform: rotateY(180deg);
+}
+
+/* === Faces === */
+.card-face {
+  position: absolute;
+  width: 100%;
+  min-height: var(--card-min-height);
+  background: var(--card-background);
+  backdrop-filter: var(--card-backdrop-filter);
+  border: var(--card-border);
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--card-shadow);
+  color: var(--text-color);
+  text-align: center;
+  padding: var(--card-padding);
+  backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.card-login {
+  transform: rotateY(0deg);
+}
+
+.card-signup {
+  transform: rotateY(180deg);
+}
+
+/* === Title === */
+.login-title {
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  letter-spacing: 2px;
+  color: #d0faff;
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+  margin-bottom: 25px;
+}
+
+/* === Inputs === */
+.input-field {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  margin: 10px 0;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+  color: #fff;
+  font-size: clamp(0.8rem, 1.2vw, 1rem);
+  outline: none;
+  transition: 0.3s;
+}
+
+.input-field::placeholder {
+  color: var(--placeholder-color);
+}
+
+.input-field:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 15px #00ffff;
+  transform: scale(1.02);
+}
+
+/* === Buttons === */
+.login-btn {
+  width: 100%;
+  padding: 0.9rem;
+  margin-top: 20px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #ffb6c1, #8be9fd);
+  color: #001f2e;
+  font-weight: bold;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: 0.3s ease-in-out;
+  font-size: clamp(0.9rem, 1.2vw, 1rem);
+}
+
+.login-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+  background-position: right center;
+}
+
+/* === Message Box === */
+.message-box {
+  margin-top: 15px;
+  padding: 10px 15px;
+  border-radius: 10px;
+  font-size: clamp(0.8rem, 1vw, 1rem);
+  text-align: center;
+  animation: fadeIn 0.6s ease;
+  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
+}
+
+.message-box.success {
+  color: #00ffcc;
+  border-color: rgba(0, 255, 204, 0.4);
+  text-shadow: 0 0 8px rgba(0, 255, 204, 0.6);
+}
+
+.message-box.error {
+  color: #ff4f6d;
+  border-color: rgba(255, 79, 109, 0.4);
+  text-shadow: 0 0 8px rgba(255, 79, 109, 0.6);
+}
+
+.message-box.warning {
+  color: #ffd166;
+  border-color: rgba(255, 209, 102, 0.4);
+  text-shadow: 0 0 8px rgba(255, 209, 102, 0.6);
+}
+
+/* === Footer === */
+.footer-text {
+  margin-top: 20px;
+  font-size: clamp(0.7rem, 1vw, 0.9rem);
+  color: #cce7ff;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  cursor: pointer;
+  font-weight: bold;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.toggle-btn:hover {
+  text-shadow: 0 0 10px #00ffff;
+}
+
+.forgot {
+  display: inline-block;
+  margin-bottom: 10px;
+  color: #aee9ff;
+  font-size: clamp(0.7rem, 1vw, 0.9rem);
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.forgot:hover {
+  color: #fff;
+  text-shadow: 0 0 8px #00ffff;
+}
+
+/* === Animations === */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* === Responsive Design === */
+
+/* Large screens (desktops) */
+@media (min-width: 1200px) {
+  :root {
+    --card-max-width: 480px;
+    --card-min-height: 520px;
+    --card-padding: 50px 40px;
+  }
+}
+
+/* Medium screens (tablets) */
+@media (max-width: 1024px) {
+  :root {
+    --card-max-width: 420px;
+    --card-min-height: 470px;
+    --card-padding: 40px 30px;
+  }
+}
+
+/* Small screens (mobiles) */
+@media (max-width: 768px) {
+  .avatar-login-page {
+    align-items: flex-start;
+    padding-top: 70px;
+    background-position: center;
+  }
+
+  :root {
+    --card-max-width: 360px;
+    --card-min-height: 450px;
+    --card-padding: 35px 25px;
+  }
+
+  .login-btn {
+    padding: 0.8rem;
+  }
+}
+
+/* Very small devices */
+@media (max-width: 480px) {
+  .avatar-login-page {
+    padding: 50px 15px;
+  }
+
+  :root {
+    --card-max-width: 100%;
+    --card-min-height: 420px;
+    --card-padding: 30px 20px;
+    --card-border-radius: 12px;
+  }
+
+  .login-title {
+    margin-bottom: 15px;
+  }
+
+  .input-field {
+    margin: 8px 0;
+  }
+
+  .login-btn {
+    margin-top: 15px;
+  }
+}
+
+/* === Inputs (Responsive & Fluid) === */
+.avatar-login-page .glass-card .input-field {
+  width: 100%;
+  max-width: 100%;
+  padding: clamp(0.7rem, 1.5vw, 1rem) clamp(0.8rem, 2vw, 1.2rem);
+  margin: 10px 0;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  color: #fff;
+  font-size: clamp(0.85rem, 1.2vw, 1rem);
+  outline: none;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.avatar-login-page .glass-card .input-field::placeholder {
+  color: rgba(220, 245, 255, 0.8);
+}
+
+.avatar-login-page .glass-card .input-field:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 15px #00ffff;
+  transform: scale(1.03);
+}
+
+/* === Responsive Tweaks for Inputs === */
+@media (max-width: 768px) {
+  .avatar-login-page .glass-card .input-field {
+    padding: clamp(0.6rem, 2vw, 0.8rem) clamp(0.8rem, 3vw, 1rem);
+    font-size: clamp(0.8rem, 2.5vw, 0.95rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .avatar-login-page .glass-card .input-field {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.85rem;
+    border-radius: 8px;
+  }
+}

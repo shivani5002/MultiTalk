@@ -1,0 +1,196 @@
+
+.dashboard-bg {
+  min-height: 100vh;
+  background: url("C:\Users\5520\Desktop\Desktop\Multi_talk\public\dashboard-back.jpg") no-repeat center center fixed;
+  background-size: cover;
+  position: relative;
+  color: #fff;
+}
+
+
+.dashboard-main-content {
+  padding: 3rem 2rem 1.6rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.welcome-text {
+    font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #71fdff;
+  text-shadow: 0 0 16px #56faff;
+  margin-bottom: 1.2rem;
+  letter-spacing: 0.06em;
+}
+
+.sub-welcome {
+  color: #fff;
+  font-size: 1.2rem;
+  margin-bottom: 2.2rem;
+   font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+}
+
+.dashboard-btn {
+  margin: 1.2rem 0 2.4rem 0;
+  font-size: 1.12rem;
+  padding: 0.8rem 2.8rem;
+  border-radius: 2.5rem;
+  box-shadow: 0 0 18px #7cf8ff, 0 0 13px #c56cff;
+  background: linear-gradient(90deg, #8defff 5%, #b84fff 100%);
+  color: #262626;
+  font-weight: 700;
+  outline: none;
+  border: none;
+}
+.dashboard-btn:hover {
+  background: #1e3847;
+  color: #43ffe1;
+}
+
+.section-divider {
+  width: 90%;
+  max-width: 1000px;
+  height: 2px;
+  margin: 1.5rem auto 2.4rem auto;
+  background: linear-gradient(90deg, #30f1fc40 10%, #6ad1fc 60%, #30f1fc40 90%);
+  border: none;
+  box-shadow: 0 0 12px #38d1ff54, 0 0 4px #6ad1fc66;
+  border-radius: 2rem;
+}
+
+
+.examples-section h2 {
+  /* color: #53cfff; */
+  margin-bottom: 3.5rem;
+  font-size: 1.4rem;
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.examples-list {
+  display: flex;
+  gap: 2.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 2.5rem;
+}
+
+.example-card {
+  background: rgba(15, 16, 34, 0.85);
+  border-radius: 1.5rem;
+  box-shadow: 0 0 24px #1de1e1, 0 0 14px #202040 inset;
+  padding: 1.5rem 1.2rem 1.2rem 1.2rem;
+  min-width: 340px;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  /* height: 390px; */
+  max-height: 400px;
+  border: 2.5px solid;
+  margin-bottom: 2rem;
+  position: relative;
+  transition: box-shadow 0.18s;
+}
+
+
+
+.example-type {
+  /* color: #41ffe0; */
+  font-size: 1.11rem;
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+  margin-top: 0.2rem;
+  letter-spacing: 0.02em;
+  align-self: center;
+}
+
+
+.example-desc {
+  color: #dedede;
+  font-size: 0.99rem;
+  line-height: 1.45;
+  margin-bottom: 0.3rem;
+  text-align: left;
+}
+
+.remix-btn {
+  background: linear-gradient(90deg, #39ffef 0%, #a85bff 100%);
+  color: #111;
+  border-radius: 1.2rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  font-weight: 600;
+  font-size: 1.07rem;
+  cursor: pointer;
+  margin-top: 2rem;
+  align-self: center;
+  box-shadow: 0 0 18px #7fdaff, 0 0 10px #6a3cff;
+  outline: none;
+  transition: background 0.14s, color 0.14s;
+}
+
+.remix-btn:hover {
+  background: #1e3847;
+  color: #39ffef;
+}
+
+.example-card.purple { border-color: #ad8bff; box-shadow: 0 0 18px #ad8bff; }
+.example-card.blue   { border-color: #0ec4ce; box-shadow: 0 0 18px #3be2ec; }
+.example-card.green  { border-color: #1adead; box-shadow: 0 0 18px #55e8c3; }
+
+/* Add these responsive styles to your existing CSS */
+
+/* Mobile First - Small Screens */
+@media (max-width: 768px) {
+  
+  .dashboard-main-content {
+    padding: 2rem 1rem;
+  }
+
+  .welcome-text {
+    font-size: 2rem;
+    text-align: center;
+  }
+
+  .sub-welcome {
+    font-size: 1rem;
+    text-align: center;
+  }
+
+  .dashboard-btn {
+    font-size: 1rem;
+    padding: 0.7rem 2rem;
+  }
+}
+
+/* Tablet Screens */
+@media (min-width: 769px) and (max-width: 1024px) {
+  
+
+  .dashboard-main-content {
+    padding: 2.5rem 1.5rem;
+  }
+
+  .welcome-text {
+    font-size: 2.2rem;
+  }
+}
+
+/* Very Small Screens */
+@media (max-width: 480px) {
+  .welcome-text {
+    font-size: 1.7rem;
+  }
+
+  .sub-welcome {
+    font-size: 0.9rem;
+  }
+
+  .dashboard-btn {
+    font-size: 0.9rem;
+    padding: 0.6rem 1.5rem;
+  }
+}
