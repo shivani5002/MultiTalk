@@ -1,0 +1,324 @@
+/* Floating Action Button */
+.gemini-assistant__fab {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4A90E2 0%, #D946EF 100%);
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  box-shadow: 
+    0 8px 25px rgba(74, 144, 226, 0.6),
+    0 0 40px rgba(217, 70, 239, 0.4);
+  transition: all 0.3s ease;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gemini-assistant__fab:hover {
+  transform: scale(1.1);
+  box-shadow: 
+    0 12px 35px rgba(74, 144, 226, 0.8),
+    0 0 60px rgba(217, 70, 239, 0.6);
+}
+
+.gemini-assistant__fab.active {
+  background: linear-gradient(135deg, #D946EF 0%, #4A90E2 100%);
+}
+
+/* Chat Panel */
+.gemini-assistant__panel {
+  position: fixed;
+  bottom: 100px;
+  right: 30px;
+  width: 400px;
+  max-width: calc(100vw - 60px);
+  height: 600px;
+  max-height: calc(100vh - 150px);
+  background: rgba(31, 30, 53, 0.98);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  border: 2px solid rgba(74, 144, 226, 0.3);
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 0 40px rgba(74, 144, 226, 0.2);
+  display: flex;
+  flex-direction: column;
+  z-index: 9998;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Header */
+.gemini-assistant__header {
+  padding: 20px;
+  border-bottom: 1px solid rgba(156, 163, 175, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(74, 144, 226, 0.1), rgba(217, 70, 239, 0.1));
+}
+
+.gemini-assistant__header-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.gemini-assistant__logo {
+  font-size: 32px;
+}
+
+.gemini-assistant__header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #fff;
+  font-weight: 700;
+}
+
+.gemini-assistant__header p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #9CA3AF;
+}
+
+.gemini-assistant__close {
+  background: none;
+  border: none;
+  color: #9CA3AF;
+  font-size: 24px;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.gemini-assistant__close:hover {
+  color: #D946EF;
+}
+
+/* Quick Actions */
+.gemini-assistant__quick-actions {
+  padding: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  border-bottom: 1px solid rgba(156, 163, 175, 0.1);
+}
+
+.gemini-assistant__quick-btn {
+  background: rgba(74, 144, 226, 0.1);
+  border: 1px solid rgba(74, 144, 226, 0.3);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.gemini-assistant__quick-btn:hover {
+  background: rgba(74, 144, 226, 0.2);
+  border-color: rgba(74, 144, 226, 0.5);
+  transform: translateY(-2px);
+}
+
+.gemini-assistant__quick-icon {
+  font-size: 1rem;
+}
+
+.gemini-assistant__quick-text {
+  font-size: 0.75rem;
+}
+
+/* Messages */
+.gemini-assistant__messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.gemini-assistant__messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.gemini-assistant__messages::-webkit-scrollbar-thumb {
+  background: rgba(74, 144, 226, 0.5);
+  border-radius: 10px;
+}
+
+.gemini-assistant__message {
+  display: flex;
+  gap: 10px;
+  animation: messageIn 0.3s ease;
+}
+
+@keyframes messageIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.gemini-assistant__message--user {
+  flex-direction: row-reverse;
+}
+
+.gemini-assistant__message-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4A90E2, #D946EF);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.gemini-assistant__message-content {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 12px 16px;
+  border-radius: 16px;
+  max-width: 75%;
+  color: #fff;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.gemini-assistant__message--user .gemini-assistant__message-content {
+  background: linear-gradient(135deg, #4A90E2, #5B9FED);
+}
+
+.gemini-assistant__apply-btn {
+  margin-top: 12px;
+  background: linear-gradient(135deg, #D946EF, #F0ABFC);
+  border: none;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: transform 0.2s;
+}
+
+.gemini-assistant__apply-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* Typing Indicator */
+.gemini-assistant__typing {
+  display: flex;
+  gap: 4px;
+  padding: 12px 16px;
+}
+
+.gemini-assistant__typing span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4A90E2;
+  animation: typing 1.4s infinite;
+}
+
+.gemini-assistant__typing span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.gemini-assistant__typing span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typing {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.7;
+  }
+  30% {
+    transform: translateY(-10px);
+    opacity: 1;
+  }
+}
+
+/* Input */
+.gemini-assistant__input-container {
+  padding: 15px;
+  border-top: 1px solid rgba(156, 163, 175, 0.2);
+  display: flex;
+  gap: 10px;
+}
+
+.gemini-assistant__input {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(156, 163, 175, 0.3);
+  border-radius: 20px;
+  padding: 12px 16px;
+  color: #fff;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.gemini-assistant__input:focus {
+  border-color: #4A90E2;
+}
+
+.gemini-assistant__send-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4A90E2, #D946EF);
+  border: none;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.gemini-assistant__send-btn:hover:not(:disabled) {
+  transform: scale(1.1);
+}
+
+.gemini-assistant__send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .gemini-assistant__panel {
+    right: 15px;
+    width: calc(100vw - 30px);
+    height: calc(100vh - 150px);
+  }
+  
+  .gemini-assistant__fab {
+    right: 15px;
+    bottom: 20px;
+  }
+}

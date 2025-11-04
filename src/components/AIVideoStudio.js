@@ -1,52 +1,142 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './AIVideoStudio.css';
 import Navbar from "./Navbar";
+import GeminiAssistant from './GeminiAssistant';
+
+// Backend API URL
+const BACKEND_API = 'https://43d151711e9e.ngrok-free.app'; // Update to your ngrok URL
 
 const AIVideoStudio = () => {
   const [prompt, setPrompt] = useState('');
   const [speakerCount, setSpeakerCount] = useState(0);
   const [uploadedImage, setUploadedImage] = useState(null);
-  const [uploadedAudio, setUploadedAudio] = useState(null);
-  const [audioName, setAudioName] = useState('');
+  const [uploadedImageFile, setUploadedImageFile] = useState(null);
+  const [uploadedAudioFiles, setUploadedAudioFiles] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [jobId, setJobId] = useState(null);
+  const [jobStatus, setJobStatus] = useState(null);
+  
   const fileInputRef = useRef(null);
   const audioInputRef = useRef(null);
+
+  // Poll job status
+  useEffect(() => {
+    if (jobId && jobStatus === 'processing') {
+      const interval = setInterval(async () => {
+        try {
+          const response = await fetch(`${BACKEND_API}/api/status/${jobId}`);
+          const data = await response.json();
+          setJobStatus(data.status);
+          
+          if (data.status === 'completed') {
+            clearInterval(interval);
+            setProgress(100);
+            alert('Video generation completed! You can now download the video.');
+          }
+        } catch (error) {
+          console.error('Error checking status:', error);
+        }
+      }, 5000); // Check every 5 seconds
+      
+      return () => clearInterval(interval);
+    }
+  }, [jobId, jobStatus]);
 
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setUploadedImage(e.target.result);
-      };
-      reader.readAsDataURL(file);
+      const imageUrl = URL.createObjectURL(file);
+      setUploadedImage(imageUrl);
+      setUploadedImageFile(file);
+      console.log('📸 Image uploaded:', file.name, file.size, 'bytes');
     }
   };
 
   const handleAudioUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setUploadedAudio(file);
-      setAudioName(file.name);
+    const newFiles = Array.from(event.target.files);
+    if (newFiles.length > 0) {
+      // ✅ APPEND to existing files instead of replacing
+      setUploadedAudioFiles(prev => {
+        const combined = [...prev, ...newFiles];
+        
+        // Limit total to 3 files
+        const limitedFiles = combined.slice(0, 3);
+        
+        if (combined.length > 3) {
+          alert(`Maximum 3 speakers supported. You uploaded ${combined.length} files, using first 3.`);
+        }
+        
+        setSpeakerCount(limitedFiles.length);
+        console.log(`🎵 ${limitedFiles.length} audio file(s) total`);
+        
+        return limitedFiles;
+      });
     }
   };
 
-  const handleGenerateVideo = () => {
-    setIsGenerating(true);
-    setProgress(0);
+  const handleGenerateVideo = async () => {
+    if (!uploadedImageFile) {
+      alert('Please upload an image first!');
+      return;
+    }
+
+    // ✅ FIXED: Allow 1, 2, or 3 audio files
+    if (uploadedAudioFiles.length === 0) {
+      alert('Please upload at least 1 audio file!');
+      return;
+    }
     
-    // Simulate video generation progress
-    const interval = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setTimeout(() => setIsGenerating(false), 500);
-          return 100;
-        }
-        return prev + 10;
+    if (uploadedAudioFiles.length > 3) {
+      alert('Maximum 3 audio files supported!');
+      return;
+    }
+
+    setIsGenerating(true);
+    setJobStatus('processing');
+
+    try {
+      const formData = new FormData();
+      formData.append('image', uploadedImageFile);
+      
+      // ✅ Send all audio files - backend will handle 1, 2, or 3
+      uploadedAudioFiles.forEach((audioFile) => {
+        formData.append('audio_files', audioFile);
       });
-    }, 200);
+      
+      const config = {
+        prompt: prompt || 'A person speaking with synchronized lip movements.'
+      };
+      formData.append('config', JSON.stringify(config));
+
+      console.log('📤 Video Generation Request:', {
+        image: uploadedImageFile.name,
+        audioFiles: uploadedAudioFiles.map(f => f.name),
+        config: config
+      });
+
+      const response = await fetch(`${BACKEND_API}/api/generate-audio-video`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+      
+      if (response.ok) {
+        setJobId(result.job_id);
+        setJobStatus('started');
+        console.log('✅ Job started:', result.job_id);
+        alert('Video generation started!');
+      } else {
+        throw new Error(result.error || 'Backend error');
+      }
+    } catch (error) {
+      console.error('❌ Error:', error);
+      alert(`Error: ${error.message}`);
+      setJobStatus(null);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const triggerFileInput = () => {
@@ -57,17 +147,53 @@ const AIVideoStudio = () => {
     audioInputRef.current?.click();
   };
 
-  const removeAudio = () => {
-    setUploadedAudio(null);
-    setAudioName('');
-    if (audioInputRef.current) {
-      audioInputRef.current.value = '';
+  const removeAudio = (indexToRemove) => {
+    setUploadedAudioFiles(prev => prev.filter((_, index) => index !== indexToRemove));
+    setSpeakerCount(prev => Math.max(0, prev - 1));
+  };
+
+  const downloadVideo = () => {
+    if (jobId) {
+      window.open(`${BACKEND_API}/api/download/${jobId}`, '_blank');
     }
+  };
+
+  const handlePromptGenerated = (generatedPrompt) => {
+    setPrompt(generatedPrompt);
+  };
+
+  const handleImageGenerated = (imageData) => {
+    // Convert base64 to blob and create File object
+    const byteCharacters = atob(imageData.split(',')[1]);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: 'image/png' });
+    const file = new File([blob], 'generated-image.png', { type: 'image/png' });
+    
+    const imageUrl = URL.createObjectURL(file);
+    setUploadedImage(imageUrl);
+    setUploadedImageFile(file);
+    console.log('✅ Generated image set as reference');
+  };
+
+  const handleDialogueGenerated = (dialogues) => {
+    console.log('Dialogue generated:', dialogues);
   };
 
   return (
     <div className="ai-studio">
       <Navbar />
+
+      <GeminiAssistant
+        onPromptGenerated={handlePromptGenerated}
+        onImageGenerated={handleImageGenerated}
+        onDialogueGenerated={handleDialogueGenerated}
+        currentSpeakers={Array(speakerCount).fill(null).map((_, i) => ({ id: `S${i + 1}` }))}
+      />
+
       {/* Animated Background Elements */}
       <div className="floating-shapes">
         <div className="shape shape-1"></div>
@@ -134,11 +260,12 @@ const AIVideoStudio = () => {
                 <div className="input-group">
                   <label className="input-label">
                     <i className="fa-solid fa-music label-icon"></i>
-                    Audio Track
+                    Audio Tracks ({uploadedAudioFiles.length} / 3)
                   </label>
+
                   <div className="audio-upload-container">
                     <div 
-                      className={`audio-upload-box ${uploadedAudio ? 'has-audio' : ''}`}
+                      className={`audio-upload-box ${uploadedAudioFiles.length > 0 ? 'has-audio' : ''}`}
                       onClick={triggerAudioInput}
                     >
                       <input
@@ -146,33 +273,36 @@ const AIVideoStudio = () => {
                         ref={audioInputRef}
                         onChange={handleAudioUpload}
                         accept="audio/*"
+                        multiple
                         style={{ display: 'none' }}
                       />
                       
-                      {uploadedAudio ? (
-                        <div className="audio-preview">
-                          <div className="audio-visualizer">
-                            <div className="visualizer-bar"></div>
-                            <div className="visualizer-bar"></div>
-                            <div className="visualizer-bar"></div>
-                            <div className="visualizer-bar"></div>
-                            <div className="visualizer-bar"></div>
-                          </div>
-                          <div className="audio-info">
-                            <span className="audio-name">{audioName}</span>
-                            <span className="audio-details">
-                              {(uploadedAudio.size / (1024 * 1024)).toFixed(2)} MB • Ready to use
-                            </span>
-                          </div>
-                          <button 
-                            className="remove-audio-btn"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              removeAudio();
-                            }}
-                          >
-                            <i className="fa-solid fa-trash"></i>
-                          </button>
+                      {uploadedAudioFiles.length > 0 ? (
+                        <div className="audio-list">
+                          {uploadedAudioFiles.map((file, index) => (
+                            <div key={index} className="audio-item">
+                              <div className="audio-visualizer">
+                                <div className="visualizer-bar"></div>
+                                <div className="visualizer-bar"></div>
+                                <div className="visualizer-bar"></div>
+                              </div>
+                              <div className="audio-info">
+                                <span className="audio-name">Speaker {index + 1}: {file.name}</span>
+                                <span className="audio-details">
+                                  {(file.size / (1024 * 1024)).toFixed(2)} MB
+                                </span>
+                              </div>
+                              <button 
+                                className="remove-audio-btn"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  removeAudio(index);
+                                }}
+                              >
+                                <i className="fa-solid fa-trash"></i>
+                              </button>
+                            </div>
+                          ))}
                         </div>
                       ) : (
                         <div className="audio-upload-placeholder">
@@ -180,49 +310,26 @@ const AIVideoStudio = () => {
                             <i className="fa-solid fa-cloud-arrow-up"></i>
                           </div>
                           <div className="audio-upload-content">
-                            <p className="audio-upload-title">Upload Audio File</p>
-                            <p className="audio-upload-desc">Drag & drop or click to browse</p>
+                            <p className="audio-upload-title">Upload Audio Files</p>
+                            <p className="audio-upload-desc">Drag & drop or click to browse (Max 3 files)</p>
                             <span className="audio-supported">Supports: MP3, WAV, M4A</span>
                           </div>
                         </div>
                       )}
                     </div>
-                    
-                    {uploadedAudio && (
-                      <div className="audio-controls">
-                        <audio controls className="audio-player">
-                          <source src={URL.createObjectURL(uploadedAudio)} type={uploadedAudio.type} />
-                          Your browser does not support the audio element.
-                        </audio>
-                      </div>
-                    )}
                   </div>
                 </div>
 
-                {/* Speaker Selection */}
-                {uploadedAudio && (
+                {/* Speaker Count Display */}
+                {uploadedAudioFiles.length > 0 && (
                   <div className="input-group">
                     <label className="input-label">
                       <i className="fa-solid fa-users label-icon"></i>
                       Speaker Configuration
                     </label>
-                    <div className="speaker-selection">
-                      <select 
-                        className="speaker-dropdown"
-                        value={speakerCount}
-                        onChange={(e) => setSpeakerCount(parseInt(e.target.value))}
-                      >
-                        <option value={0}>Select number of speakers...</option>
-                        {[1, 2, 3, 4, 5].map(num => (
-                          <option key={num} value={num}>
-                            {num} Speaker{num > 1 ? 's' : ''}
-                          </option>
-                        ))}
-                      </select>
-                      <div className="speaker-info">
-                        <i className="fa-solid fa-circle-info"></i>
-                        <span>Choose based on your audio content</span>
-                      </div>
+                    <div className="speaker-info">
+                      <i className="fa-solid fa-circle-info"></i>
+                      <span>{speakerCount} speaker{speakerCount > 1 ? 's' : ''} detected from audio files</span>
                     </div>
                   </div>
                 )}
@@ -320,43 +427,51 @@ const AIVideoStudio = () => {
 
         {/* Generate Button */}
         <div className="generate-section">
-          <button 
-            className={`generate-btn ${isGenerating ? 'generating' : ''} ${
-              !prompt || !uploadedImage ? 'disabled' : ''
-            }`}
-            onClick={handleGenerateVideo}
-            disabled={isGenerating || !prompt || !uploadedImage}
-          >
-            <div className="btn-content">
-              {isGenerating ? (
-                <>
-                  <div className="btn-spinner">
-                    <div className="spinner-ring"></div>
-                  </div>
-                  <span>Creating Magic...</span>
-                </>
-              ) : (
-                <>
-                  <i className="fa-solid fa-wand-magic-sparkles"></i>
-                  <span>Generate AI Video</span>
-                </>
-              )}
-            </div>
-            <div className="btn-glow"></div>
-          </button>
-
-          {/* Progress Bar */}
-          {isGenerating && (
-            <div className="progress-section">
-              <div className="progress-container">
-                <div 
-                  className="progress-bar"
-                  style={{ width: `${progress}%` }}
-                />
+          {jobStatus === 'completed' ? (
+            <button 
+              className="generate-btn"
+              onClick={downloadVideo}
+            >
+              <div className="btn-content">
+                <i className="fa-solid fa-download"></i>
+                <span>Download Video</span>
               </div>
+              <div className="btn-glow"></div>
+            </button>
+          ) : (
+            <button 
+              className={`generate-btn ${isGenerating ? 'generating' : ''} ${
+                !prompt || !uploadedImage || uploadedAudioFiles.length === 0 ? 'disabled' : ''
+              }`}
+              onClick={handleGenerateVideo}
+              disabled={isGenerating || !prompt || !uploadedImage || uploadedAudioFiles.length === 0}
+            >
+              <div className="btn-content">
+                {isGenerating ? (
+                  <>
+                    <div className="btn-spinner">
+                      <div className="spinner-ring"></div>
+                    </div>
+                    <span>Creating Magic...</span>
+                  </>
+                ) : (
+                  <>
+                    <i className="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>Generate AI Video</span>
+                  </>
+                )}
+              </div>
+              <div className="btn-glow"></div>
+            </button>
+          )}
+
+          {/* Status Display */}
+          {jobStatus && jobStatus !== 'completed' && (
+            <div className="progress-section">
               <div className="progress-stats">
-                <span className="progress-text">Processing: {progress}%</span>
-                <span className="progress-time">Estimated: 30s</span>
+                <span className="progress-text">
+                  {jobStatus === 'processing' ? '⏳ Generating video...' : '🚀 Starting generation...'}
+                </span>
               </div>
             </div>
           )}

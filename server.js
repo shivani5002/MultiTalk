@@ -6,6 +6,7 @@ const dotenv = require("dotenv");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+
 dotenv.config();
 
 const app = express();
@@ -86,3 +87,8 @@ app.post("/login", async (req, res) => {
 
 // 🚀 Initialize App
 startServer();
+
+
+app.listen(process.env.PORT || 5000, () => {
+  console.log('Server running on port', process.env.PORT || 5000);
+});
