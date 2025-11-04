@@ -24,7 +24,7 @@ const voiceOptions = [
 ];
 
 // Backend API URL (Update this to your ngrok URL)
-const BACKEND_API = 'https://9b4bcdd45fcb.ngrok-free.app'; // Change to your ngrok URL when deployed
+const BACKEND_API = 'https://9b4bcdd45fcb.ngrok-free.app';
 
 function AICreationStudio() {
     // --- State Management ---
@@ -41,8 +41,7 @@ function AICreationStudio() {
     const [isGenerating, setIsGenerating] = useState(false);
     const [jobId, setJobId] = useState(null);
     const [jobStatus, setJobStatus] = useState(null);
-
-
+    const [generatedVideo, setGeneratedVideo] = useState(null);
 
     // ADD: Callback to handle prompt from Gemini
     const handlePromptFromGemini = (generatedPrompt) => {
@@ -51,7 +50,6 @@ function AICreationStudio() {
 
     // ADD: Callback to handle dialogue from Gemini
     const handleDialogueFromGemini = (generatedDialogues) => {
-        // generatedDialogues should be an array of {speakerId, text}
         const newDialogues = generatedDialogues.map((dialogue, index) => ({
             id: index + 1,
             speakerId: dialogue.speakerId || `S${index + 1}`,
@@ -62,7 +60,6 @@ function AICreationStudio() {
 
     // ADD: Callback to handle image from Gemini
     const handleImageFromGemini = (imageData) => {
-        // Convert base64 to blob and create File object
         const byteCharacters = atob(imageData.split(',')[1]);
         const byteNumbers = new Array(byteCharacters.length);
         for (let i = 0; i < byteCharacters.length; i++) {
@@ -105,17 +102,17 @@ function AICreationStudio() {
                     
                     if (data.status === 'completed') {
                         clearInterval(interval);
-                        alert('Video generation completed! You can now download the video.');
+                        setGeneratedVideo(`${BACKEND_API}/api/video/${jobId}`);
+                        console.log('✅ Video generation completed!');
                     }
                 } catch (error) {
                     console.error('Error checking status:', error);
                 }
-            }, 5000); // Check every 5 seconds
+            }, 5000);
             
             return () => clearInterval(interval);
         }
     }, [jobId, jobStatus]);
-
 
     // --- Handlers ---
     const handlePromptChange = (e) => {
@@ -175,7 +172,6 @@ function AICreationStudio() {
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
-            // Create a local URL for preview
             const imageUrl = URL.createObjectURL(file);
             setUploadedImage(imageUrl);
             setUploadedImageFile(file);
@@ -190,8 +186,14 @@ function AICreationStudio() {
         }
     };
 
+    // Reset and create another video
+    const createAnotherVideo = () => {
+        setJobStatus(null);
+        setJobId(null);
+        setGeneratedVideo(null);
+    };
 
-// Main function to send to backend
+    // Main function to send to backend
     const forgeMasterpiece = async () => {
         if (!uploadedImageFile) {
             alert('Please upload an image first!');
@@ -200,57 +202,57 @@ function AICreationStudio() {
 
         setIsGenerating(true);
         setJobStatus('processing');
-        // ✅ CHECK: Make sure dialogueLines is NOT empty!
-    const activeLines = dialogueLines.filter(line => line.speakerId && line.text.trim());
-    
-    if (activeLines.length === 0) {
-        alert('Please add at least one dialogue line!');
-        return;
-    }
+        setGeneratedVideo(null);
+        
+        const activeLines = dialogueLines.filter(line => line.speakerId && line.text.trim());
+        
+        if (activeLines.length === 0) {
+            alert('Please add at least one dialogue line!');
+            setIsGenerating(false);
+            setJobStatus(null);
+            return;
+        }
 
         try {
-            // Construct the dialogue text
+            const isSingleSpeaker = speakers.length === 1;
+            
             const dialogueText = dialogueLines
                 .filter(line => line.speakerId && line.text.trim())
-                .map(line => `(${line.speakerId.toLowerCase()}) ${line.text}`)
+                .map(line => {
+                    if (isSingleSpeaker) {
+                        return line.text;
+                    } else {
+                        return `(${line.speakerId.toLowerCase()}) ${line.text}`;
+                    }
+                })
                 .join(' ');
 
-            // Build tts_audio object
             const ttsAudio = {
                 text: dialogueText
             };
 
-            // Add voice mappings for each speaker - FIXED KEY NAMES
             speakers.forEach(speaker => {
                 if (speaker.voice) {
-                    // FIX: Remove the 's' from humans1_voice -> human1_voice
-                    const speakerNumber = speaker.id.toLowerCase().replace('s', ''); // S1 -> 1
-                    const speakerKey = `human${speakerNumber}_voice`; // human1_voice
+                    const speakerNumber = speaker.id.toLowerCase().replace('s', '');
+                    const speakerKey = `human${speakerNumber}_voice`;
                     ttsAudio[speakerKey] = `/content/drive/MyDrive/weights/Kokoro-82M/voices/${speaker.voice}.pt`;
                 }
             });
 
-            // Create the final config object
             const config = {
                 "prompt": promptInput || 'A new avatar video.',
                 "tts_audio": ttsAudio
             };
 
-            // Print the JSON to console before sending
             console.log('📤 Sending JSON to backend:');
-            console.log('Image file:', uploadedImageFile.name);
             console.log('Config JSON:', JSON.stringify(config, null, 2));
-            console.log('Dialogue lines:', dialogueLines);
-            console.log('Speakers:', speakers);
 
-            // Create FormData to send both file and config
             const formData = new FormData();
             formData.append('image', uploadedImageFile);
             formData.append('config', JSON.stringify(config));
 
             console.log('🔄 Sending request to backend...');
 
-            // Send to backend
             const response = await fetch(`${BACKEND_API}/api/generate-tts-video`, {
                 method: 'POST',
                 body: formData,
@@ -259,9 +261,8 @@ function AICreationStudio() {
             if (response.ok) {
                 const result = await response.json();
                 setJobId(result.job_id);
-                setJobStatus('started');
+                setJobStatus('processing');
                 console.log('✅ Backend response:', result);
-                alert('Video generation started! The page will automatically update when your video is ready.');
             } else {
                 const errorText = await response.text();
                 console.error('❌ Backend error:', errorText);
@@ -440,10 +441,10 @@ function AICreationStudio() {
                               
                             {jobStatus === 'completed' ? (
                                 <button 
-                                    className="ai-creation-studio_btn-primary ai-creation-studio_btn-success"
+                                    className="ai-creation-studio__btn-primary ai-creation-studio__btn-success"
                                     onClick={downloadVideo}
                                 >
-                                    📥 Download Video
+                                    <i className="fa-solid fa-download"></i> Download Video
                                 </button>
                             ) : (
                                 <button 
@@ -451,17 +452,77 @@ function AICreationStudio() {
                                     onClick={forgeMasterpiece}
                                     disabled={isGenerating || !uploadedImageFile}
                                 >
-                                    {isGenerating ? 'Generating...' : 'FORGE YOUR MASTERPIECE'}
+                                    {isGenerating ? (
+                                        <>
+                                            <i className="fa-solid fa-spinner fa-spin"></i> Generating...
+                                        </>
+                                    ) : (
+                                        'FORGE YOUR MASTERPIECE'
+                                    )}
                                 </button>
                             )}
                             
                             {jobStatus && (
                                 <div className="ai-creation-studio__status">
-                                    Status: {jobStatus === 'processing' ? '⏳ Generating video...' : '✅ Ready to download!'}
+                                    {jobStatus === 'processing' ? (
+                                        <div className="ai-creation-studio__status-processing">
+                                            <i className="fa-solid fa-spinner fa-spin"></i> 
+                                            Generating video... This may take a few minutes.
+                                        </div>
+                                    ) : jobStatus === 'completed' ? (
+                                        <div className="ai-creation-studio__status-completed">
+                                            <i className="fa-solid fa-check"></i> 
+                                            Video ready! Scroll down to view.
+                                        </div>
+                                    ) : null}
                                 </div>
                             )}
                         </div>
                     </section>
+
+                    {/* Section 3: Generated Video Output */}
+                    {jobStatus === 'completed' && generatedVideo && (
+                        <section id="section-output" className="ai-creation-studio__section">
+                            <div className="ai-creation-studio__section-header">
+                                <h1 className="ai-creation-studio__section-title">YOUR MASTERPIECE</h1>
+                            </div>
+                            
+                            <div className="ai-creation-studio__content-wrapper">
+                                <div className="ai-creation-studio__card ai-creation-studio__card--gold-border">
+                                    <div className="ai-creation-studio__card-header">
+                                        <span className="ai-creation-studio__card-title">Generated Video</span>
+                                        <i className="fa-solid fa-film ai-creation-studio__card-icon"></i>
+                                    </div>
+                                    <div className="ai-creation-studio__video-container">
+                                        <video 
+                                            controls 
+                                            autoPlay 
+                                            muted 
+                                            className="ai-creation-studio__generated-video"
+                                            key={jobId}
+                                        >
+                                            <source src={generatedVideo} type="video/mp4" />
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    </div>
+                                    <div className="ai-creation-studio__video-actions">
+                                        <button 
+                                            className="ai-creation-studio__btn-primary" 
+                                            onClick={downloadVideo}
+                                        >
+                                            <i className="fa-solid fa-download"></i> Download Video
+                                        </button>
+                                        <button 
+                                            className="ai-creation-studio__btn-secondary"
+                                            onClick={createAnotherVideo}
+                                        >
+                                            <i className="fa-solid fa-rotate-left"></i> Create Another
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    )}
                 </main>
             </div>
             
@@ -477,4 +538,3 @@ function AICreationStudio() {
 }
 
 export default AICreationStudio;
- 
