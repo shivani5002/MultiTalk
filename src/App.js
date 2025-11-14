@@ -7,6 +7,8 @@ import VideoDetails from "./components/VideoDetails";
 import CreationMode from "./components/CreationMode"; 
 import AIVideoStudio from "./components/AIVideoStudio";
 import AICreationStudio from "./components/AICreationStudio";
+import AboutPage from "./components/AboutPage";
+import ContactPage from "./components/ContactPage"
 
 function App() {
   return (
@@ -19,6 +21,8 @@ function App() {
          <Route path="/creation-mode" element={<CreationMode />} />
          <Route path="/ai-video-studio" element={<AIVideoStudio />} /> 
          <Route path="/ai-creation-studio" element={<AICreationStudio />} />
+          <Route path="/about" element={<AboutPage/>}/>
+          <Route path="/contact" element={<ContactPage/>}/>
       </Routes>
     </BrowserRouter>
   );

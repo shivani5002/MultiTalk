@@ -1,10 +1,11 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import './AIVideoStudio.css';
 import Navbar from "./Navbar";
 import GeminiAssistant from './GeminiAssistant';
 
 // Backend API URL
-const BACKEND_API = 'https://43d151711e9e.ngrok-free.app'; // Update to your ngrok URL
+const BACKEND_API = 'https://0d53fa603c43.ngrok-free.app/';
 
 const AIVideoStudio = () => {
   const [prompt, setPrompt] = useState('');
@@ -13,31 +14,62 @@ const AIVideoStudio = () => {
   const [uploadedImageFile, setUploadedImageFile] = useState(null);
   const [uploadedAudioFiles, setUploadedAudioFiles] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [progress, setProgress] = useState(0);
   const [jobId, setJobId] = useState(null);
   const [jobStatus, setJobStatus] = useState(null);
+  const [generatedVideo, setGeneratedVideo] = useState(null);
+  const [videoError, setVideoError] = useState(null);  // ✅ ADD
   
   const fileInputRef = useRef(null);
   const audioInputRef = useRef(null);
 
-  // Poll job status
+  // ✅ FIXED: Poll job status with ngrok headers and error handling
   useEffect(() => {
     if (jobId && jobStatus === 'processing') {
       const interval = setInterval(async () => {
         try {
-          const response = await fetch(`${BACKEND_API}/api/status/${jobId}`);
+          const response = await fetch(`${BACKEND_API}/api/status/${jobId}`, {
+            method: 'GET',
+            headers: {
+              'ngrok-skip-browser-warning': 'true'  // ✅ ADD ngrok header
+            }
+          });
+          
+          if (!response.ok) {
+            console.error(`HTTP Error: ${response.status}`);
+            throw new Error(`HTTP ${response.status}`);
+          }
+          
+          const contentType = response.headers.get('content-type');
+          if (!contentType || !contentType.includes('application/json')) {
+            throw new TypeError('Server returned non-JSON response');
+          }
+          
           const data = await response.json();
+          
+          // ✅ Handle failed status
+          if (data.status === 'failed') {
+            clearInterval(interval);
+            setJobStatus('failed');
+            alert(`Video generation failed: ${data.message || data.error}`);
+            console.error('Generation failed:', data);
+            return;
+          }
+          
           setJobStatus(data.status);
           
           if (data.status === 'completed') {
             clearInterval(interval);
-            setProgress(100);
-            alert('Video generation completed! You can now download the video.');
+            // ✅ CRITICAL: Set video URL BEFORE changing status
+            const videoUrl = `${BACKEND_API}/api/video/${jobId}?t=${Date.now()}`;
+            console.log('✅ Setting video URL:', videoUrl);
+            setGeneratedVideo(videoUrl);
+            setVideoError(null);
+            console.log('✅ Video generation completed!');
           }
         } catch (error) {
           console.error('Error checking status:', error);
         }
-      }, 5000); // Check every 5 seconds
+      }, 5000);
       
       return () => clearInterval(interval);
     }
@@ -56,11 +88,8 @@ const AIVideoStudio = () => {
   const handleAudioUpload = (event) => {
     const newFiles = Array.from(event.target.files);
     if (newFiles.length > 0) {
-      // ✅ APPEND to existing files instead of replacing
       setUploadedAudioFiles(prev => {
         const combined = [...prev, ...newFiles];
-        
-        // Limit total to 3 files
         const limitedFiles = combined.slice(0, 3);
         
         if (combined.length > 3) {
@@ -81,7 +110,6 @@ const AIVideoStudio = () => {
       return;
     }
 
-    // ✅ FIXED: Allow 1, 2, or 3 audio files
     if (uploadedAudioFiles.length === 0) {
       alert('Please upload at least 1 audio file!');
       return;
@@ -94,12 +122,13 @@ const AIVideoStudio = () => {
 
     setIsGenerating(true);
     setJobStatus('processing');
+    setGeneratedVideo(null);
+    setVideoError(null);  // ✅ ADD
 
     try {
       const formData = new FormData();
       formData.append('image', uploadedImageFile);
       
-      // ✅ Send all audio files - backend will handle 1, 2, or 3
       uploadedAudioFiles.forEach((audioFile) => {
         formData.append('audio_files', audioFile);
       });
@@ -115,18 +144,21 @@ const AIVideoStudio = () => {
         config: config
       });
 
+      // ✅ FIXED: Add ngrok header
       const response = await fetch(`${BACKEND_API}/api/generate-audio-video`, {
         method: 'POST',
         body: formData,
+        headers: {
+          'ngrok-skip-browser-warning': 'true'  // ✅ ADD ngrok header
+        }
       });
 
       const result = await response.json();
       
       if (response.ok) {
         setJobId(result.job_id);
-        setJobStatus('started');
+        setJobStatus('processing');
         console.log('✅ Job started:', result.job_id);
-        alert('Video generation started!');
       } else {
         throw new Error(result.error || 'Backend error');
       }
@@ -158,12 +190,32 @@ const AIVideoStudio = () => {
     }
   };
 
+  const createAnotherVideo = () => {
+    setJobStatus(null);
+    setJobId(null);
+    setGeneratedVideo(null);
+    setVideoError(null);  // ✅ ADD
+  };
+
+  // ✅ ADD: Video error handler
+  const handleVideoError = (e) => {
+    console.error('Video loading error:', e);
+    console.error('Video error code:', e.target?.error?.code);
+    
+    if (e.target?.error?.code === 4) {
+      setVideoError('Network error loading video. Check your connection.');
+    } else if (e.target?.error?.code === 2) {
+      setVideoError('Video file format not supported by your browser.');
+    } else {
+      setVideoError('Failed to load video. Please try downloading instead.');
+    }
+  };
+
   const handlePromptGenerated = (generatedPrompt) => {
     setPrompt(generatedPrompt);
   };
 
   const handleImageGenerated = (imageData) => {
-    // Convert base64 to blob and create File object
     const byteCharacters = atob(imageData.split(',')[1]);
     const byteNumbers = new Array(byteCharacters.length);
     for (let i = 0; i < byteCharacters.length; i++) {
@@ -194,7 +246,6 @@ const AIVideoStudio = () => {
         currentSpeakers={Array(speakerCount).fill(null).map((_, i) => ({ id: `S${i + 1}` }))}
       />
 
-      {/* Animated Background Elements */}
       <div className="floating-shapes">
         <div className="shape shape-1"></div>
         <div className="shape shape-2"></div>
@@ -202,9 +253,7 @@ const AIVideoStudio = () => {
         <div className="shape shape-4"></div>
       </div>
 
-      {/* Main Content */}
       <div className="main-container">
-        {/* Header Section */}
         <header className="main-header">
           <div className="header-content">
             <div className="logo-title">
@@ -215,9 +264,7 @@ const AIVideoStudio = () => {
           </div>
         </header>
 
-        {/* Main Cards Container */}
         <div className="cards-container">
-          {/* Left Card - Input Configuration */}
           <div className="main-card blue-glow">
             <div className="card-decoration">
               <div className="decoration-dot dot-1"></div>
@@ -234,7 +281,6 @@ const AIVideoStudio = () => {
             </div>
 
             <div className="card-content">
-              {/* Prompt Section */}
               <div className="input-section">
                 <div className="input-group">
                   <label className="input-label">
@@ -256,7 +302,6 @@ const AIVideoStudio = () => {
                   </div>
                 </div>
 
-                {/* Audio Upload Section */}
                 <div className="input-group">
                   <label className="input-label">
                     <i className="fa-solid fa-music label-icon"></i>
@@ -320,7 +365,6 @@ const AIVideoStudio = () => {
                   </div>
                 </div>
 
-                {/* Speaker Count Display */}
                 {uploadedAudioFiles.length > 0 && (
                   <div className="input-group">
                     <label className="input-label">
@@ -337,7 +381,6 @@ const AIVideoStudio = () => {
             </div>
           </div>
 
-          {/* Right Card - Image Upload */}
           <div className="main-card magenta-glow">
             <div className="card-decoration">
               <div className="decoration-dot dot-1"></div>
@@ -407,7 +450,6 @@ const AIVideoStudio = () => {
                   )}
                 </div>
 
-                {/* Image Stats */}
                 {uploadedImage && (
                   <div className="image-stats">
                     <div className="stat">
@@ -425,19 +467,15 @@ const AIVideoStudio = () => {
           </div>
         </div>
 
-        {/* Generate Button */}
+        {/* Generate Button & Status */}
         <div className="generate-section">
           {jobStatus === 'completed' ? (
-            <button 
-              className="generate-btn"
-              onClick={downloadVideo}
-            >
-              <div className="btn-content">
-                <i className="fa-solid fa-download"></i>
-                <span>Download Video</span>
+            <div className="completion-status">
+              <div className="status-success">
+                <i className="fa-solid fa-check-circle"></i>
+                <span>Video Ready! Scroll up to view.</span>
               </div>
-              <div className="btn-glow"></div>
-            </button>
+            </div>
           ) : (
             <button 
               className={`generate-btn ${isGenerating ? 'generating' : ''} ${
@@ -465,7 +503,6 @@ const AIVideoStudio = () => {
             </button>
           )}
 
-          {/* Status Display */}
           {jobStatus && jobStatus !== 'completed' && (
             <div className="progress-section">
               <div className="progress-stats">
@@ -477,7 +514,113 @@ const AIVideoStudio = () => {
           )}
         </div>
 
-        {/* Footer Info */}
+        {/* ✅ FIXED: Video Output Section - Only shows when completed + URL ready */}
+        {jobStatus === 'completed' && generatedVideo ? (
+          <div className="video-output-section">
+            <div className="main-card gold-glow">
+              <div className="card-decoration">
+                <div className="decoration-dot dot-1"></div>
+                <div className="decoration-dot dot-2"></div>
+                <div className="decoration-line"></div>
+              </div>
+
+              <div className="card-header">
+                <div className="card-title-section">
+                  <i className="fa-solid fa-film card-title-icon"></i>
+                  <h2 className="card-title">Your AI Generated Video</h2>
+                </div>
+                <div className="card-badge">READY</div>
+              </div>
+
+              <div className="card-content">
+                <div className="video-container">
+                  {videoError ? (
+                    <div style={{
+                      color: '#dc3545',
+                      padding: '40px 20px',
+                      textAlign: 'center',
+                      backgroundColor: '#f8d7da',
+                      borderRadius: '8px'
+                    }}>
+                      <i className="fa-solid fa-exclamation-triangle" style={{fontSize: '48px', marginBottom: '20px'}}></i>
+                      <p style={{fontSize: '16px', marginBottom: '20px'}}>{videoError}</p>
+                      <button 
+                        onClick={downloadVideo} 
+                        className="generate-btn"
+                      >
+                        <i className="fa-solid fa-download"></i> Download Video Instead
+                      </button>
+                    </div>
+                  ) : (
+                    <video 
+                      controls 
+                      autoPlay 
+                      muted 
+                      className="generated-video"
+                      key={jobId}
+                      crossOrigin="anonymous"
+                      onError={handleVideoError}
+                      playsInline
+                      style={{
+                        width: '100%',
+                        maxHeight: '600px',
+                        borderRadius: '8px',
+                        backgroundColor: '#000'
+                      }}
+                    >
+                      <source src={generatedVideo} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  )}
+                </div>
+
+                <div className="video-actions">
+                  <button 
+                    className="generate-btn success"
+                    onClick={downloadVideo}
+                  >
+                    <div className="btn-content">
+                      <i className="fa-solid fa-download"></i>
+                      <span>Download Video</span>
+                    </div>
+                    <div className="btn-glow"></div>
+                  </button>
+                  <button 
+                    className="generate-btn secondary"
+                    onClick={createAnotherVideo}
+                  >
+                    <div className="btn-content">
+                      <i className="fa-solid fa-rotate-left"></i>
+                      <span>Create Another</span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : jobStatus === 'processing' ? (
+          <div className="video-output-section">
+            <div className="main-card">
+              <div style={{
+                textAlign: 'center',
+                padding: '60px 20px',
+                color: '#666'
+              }}>
+                <div style={{
+                  animation: 'spin 1s linear infinite',
+                  display: 'inline-block',
+                  marginBottom: '20px'
+                }}>
+                  <i className="fa-solid fa-spinner fa-3x" style={{color: '#2196F3'}}></i>
+                </div>
+                <h2>Video Generation in Progress</h2>
+                <p>This may take 5-10 minutes...</p>
+                <p style={{fontSize: '12px', color: '#999'}}>Job ID: {jobId}</p>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
         <footer className="info-footer">
           <div className="info-items">
             <div className="info-item">

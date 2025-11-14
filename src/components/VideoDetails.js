@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./VideoDetails.css";
 import Navbar from "./Navbar";
@@ -7,6 +7,7 @@ const VideoDetails = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const projectData = location.state?.projectData;
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   if (!projectData) {
     navigate("/dashboard");
@@ -22,6 +23,14 @@ const VideoDetails = () => {
       );
     }
   }
+
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
 
   return (
     <div className="video-details-container">
@@ -40,7 +49,7 @@ const VideoDetails = () => {
             <div className="strict-row-below-prompt">
               <div className="vd-card glassy strict-subcard">
                 <span className="vd-label">Reference Image</span>
-                <div className="vd-img-holder">
+                <div className="vd-img-holder" onClick={openModal}>
                   <img src={projectData.image} alt="Reference" className="vd-img" />
                 </div>
               </div>
@@ -68,6 +77,18 @@ const VideoDetails = () => {
           </div>
         </main>
       </div>
+
+      {/* Image Modal */}
+      {isModalOpen && (
+        <div className="image-modal-overlay" onClick={closeModal}>
+          <div className="image-modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close-btn" onClick={closeModal}>
+              ×
+            </button>
+            <img src={projectData.image} alt="Reference" className="modal-image" />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

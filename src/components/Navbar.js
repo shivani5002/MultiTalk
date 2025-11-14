@@ -56,8 +56,8 @@ const Navbar = () => {
       <nav className={`dashboard-nav ${isMenuOpen ? 'menu-open' : ''}`}>
         <Link to="/about" onClick={closeMenu}>About</Link>
         <Link to="/contact" onClick={closeMenu}>Contact</Link>
-        <Link to="/dashboard" onClick={closeMenu}>Dashboard</Link>
-        <Link to="/logout" onClick={closeMenu}>Logout</Link>
+        {/* <Link to="/dashboard" onClick={closeMenu}>Dashboard</Link> */}
+        <Link to="/" onClick={closeMenu}>Logout</Link>
       </nav>
     </header>
   );

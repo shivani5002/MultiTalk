@@ -13,12 +13,13 @@ const LandingPage = () => {
       <main className="main-content">
         <div className="hero-box">
           <div className="hero-headline">
-            PROJECT YOUR VISION.<br />
-            SPEAK ANY LANGUAGE
+            IMAGINE YOUR UNIVERSE.<br />
+            SPEAK IT INTO REALITY.
           </div>
           <div className="hero-desc">
-            Transform concepts into cinematic presentations using hyper-realistic AI Avatars.<br /><br />
-            Upload script, choose your world, and render in minutes.
+           Turn imagination into reality with lifelike AI-driven avatars. <br></br>
+Upload your script, define your world, and watch it come alive in minutes.
+
           </div>
           <div className="cta-buttons">
             <button
@@ -27,7 +28,7 @@ const LandingPage = () => {
             >
               ENTER THE STUDIO
             </button>
-            <button className="avatars-btn">VIEW AVATARS</button>
+            {/* <button className="avatars-btn">VIEW AVATARS</button> */}
           </div>
         </div>
       </main>
@@ -35,28 +36,28 @@ const LandingPage = () => {
       <section className="feature-section">
         <h2 className="feature-title">Why Choose MultiTalk?</h2>
         <p className="feature-subtitle">
-          Powerful features to create professional videos <span className="em-ph">effortlessly</span>
+         Advanced features to craft cinematic, multi-speaker experiences effortlessly <span className="em-ph">effortlessly</span>
         </p>
         <div className="feature-cards">
           <div className="feature-card border-orange">
             <div className="feature-card-icon">🗣️</div>
             <div className="feature-card-title">Multiple Speakers</div>
             <div className="feature-card-desc">
-              Add up to 10 different AI speakers to your video with unique voices and appearances
+             Add up to multiple AI speakers — each with distinct voices, styles, and personalities
             </div>
           </div>
           <div className="feature-card border-blue">
             <div className="feature-card-icon">🎥</div>
             <div className="feature-card-title">AI-Powered Generation</div>
             <div className="feature-card-desc">
-              Advanced AI technology creates realistic videos from your images and audio inputs
+              Generate hyper-realistic avatars from voice, image, and text with perfect lip and body sync
             </div>
           </div>
           <div className="feature-card border-purple">
             <div className="feature-card-icon">⚙️</div>
             <div className="feature-card-title">Easy To Use</div>
             <div className="feature-card-desc">
-              Simple upload process and intuitive interface - no technical skills required
+              Simple, seamless, and intuitive — create production-quality videos with just a few clicks
             </div>
           </div>
         </div>
@@ -73,14 +74,7 @@ const LandingPage = () => {
             Whether you're creating marketing materials, educational content, or corporate presentations, MultiTalk makes it simple to produce engaging videos that captivate your audience.
           </p>
           <div className="about-stats">
-            <div className="about-stat">
-              <div className="about-stat-number">10K+</div>
-              <div className="about-stat-label">Videos Created</div>
-            </div>
-            <div className="about-stat">
-              <div className="about-stat-number">50+</div>
-              <div className="about-stat-label">Languages Supported</div>
-            </div>
+            
           </div>
         </div>
         <div className="about-right">
@@ -114,7 +108,7 @@ const LandingPage = () => {
         <div className="get-started-center">
           <h2 className="get-started-title">Ready to Get Started?</h2>
           <p className="get-started-subtitle">
-            Join thousands of creators using MultiTalk to create amazing videos.
+            Join creators transforming imagination into cinematic AI-powered conversations.
           </p>
           <button
             className="get-started-btn"
